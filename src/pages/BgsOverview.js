@@ -1,9 +1,11 @@
 import React from 'react';
+import OverviewContainer from '../containers/OverviewContainer';
 
 const BgsOverview = () => {
   return (
     <div>
-      <h1>Welcome to Rock Rats BGS</h1>
+      <h1>Rock Rat Systems</h1>
+      <OverviewContainer />
     </div>
   );
 };
