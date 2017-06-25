@@ -53,18 +53,104 @@ class AwsClient {
       data.Items.map(item => { return item.system.S; })
         .sort()
     )];
+    const dates = [...new Set(
+      data.Items.map(item => { return item.date.S; })
+        .sort().reverse()
+    )];
+    const systemsOverview = systemNames.map(systemName => {
+      const systemData = data.Items.filter(item => {
+        return systemName === item.system.S;
+      });
+      return this._systemOverview(systemData, systemName, dates);
+    }, {});
     callback({
-      systems: systemNames.map((systemName) => {
-        return this._systemOverview(data, systemName);
-      }, {})
+      systems: systemsOverview,
+      dates: dates
     });
   }
 
-  _systemOverview(data, systemName) {
+  _systemOverview(systemData, systemName, dates) {
+    const factionNames = systemData
+      .filter(item => { return item.date.S === dates[0]; })
+      .sort((a, b) => { return b.influence.N - a.influence.N})
+      .map(item => { return item.faction.S });
     return {
-      systemName: systemName
-      //factions: this._factionsOverview(data, systemName)
+      systemName: systemName,
+      date: dates[0],
+      factions: factionNames.map(factionName => {
+        return this._factionOverview(systemData, factionName, dates);
+      })
     };
+  }
+
+  _factionOverview(systemData, factionName, dates) {
+    const factionData = systemData
+      .filter(item => { return factionName === item.faction.S})
+      .sort((a, b) => { return new Date(b.date.S) - new Date(a.date.S)});
+
+    if (factionData && factionData.length > 0) {
+      const today = factionData[0];
+      return {
+        factionName: this._awsString(today.faction),
+        influence: this._awsNumber(today.influence),
+        influenceDiffs: this._influenceDiffs(factionData),
+        state: this._awsString(today.state),
+        daysInState: this._daysInState(factionData),
+        enteredBy: this._awsString(today.commander),
+        method: this._awsString(today.updateType)
+      }
+    } else {
+      return [];
+    }
+  }
+
+  _influenceDiffs(factionData) {
+    const currentDate=this._awsString(factionData[0].date);
+    const currentInfluence=parseFloat(this._awsNumber(factionData[0].influence));
+    return factionData.slice(1).map(item => {
+      const date = this._awsString(item.date);
+      const influence = parseFloat(this._awsNumber(item.influence));
+      const daysDiff =
+        (new Date(currentDate) - new Date(date)) / (1000*60*60*24);
+      const influenceDiff = (influence - currentInfluence).toFixed(2);
+      return {
+        date: date,
+        daysDiff: daysDiff,
+        influenceDiff: influenceDiff
+      }
+    });
+  }
+
+  _daysInState(factionData) {
+    let count = null;
+    const currentState=this._awsString(factionData[0].state);
+    if (currentState) {
+      let n = null;
+      for(n = 1; n < factionData.length; n++) {
+        const item = factionData[n];
+
+        if (this._awsString(item.state) !== currentState) {
+          break;
+        }
+      }
+
+      if (n > 1) {
+        count =
+          ((new Date(factionData[0].date.S) - new Date(factionData[n - 1].date.S))
+            / (1000*60*60*24)) + 1;
+      } else {
+        count = 1;
+      }
+    }
+    return count;
+  }
+
+  _awsString(value) {
+    return value ? value.S : null;
+  }
+
+  _awsNumber(value) {
+    return value ? value.N : null;
   }
 };
 
