@@ -23,24 +23,48 @@ class AwsClient {
     this.db().scan({
         TableName: 'rock-rat-factions',
         IndexName: 'date-index',
-        FilterExpression: '#entrydate > :lastweek',
+        FilterExpression: '#entrydate >= :lastweek',
         ExpressionAttributeNames: {"#entrydate": "date"},
-        ExpressionAttributeValues: {":lastweek": {S: "2017-06-20"}},
+        ExpressionAttributeValues: {":lastweek": {S: this._lastWeek()}},
         Limit: 2000
       },
-      function(err, data) {
+      (err, data) => {
         if (err) {
           console.error(err);
         } else {
-          callback({
-            systems: [...new Set(
-              data.Items.map(item => { return item.system.S })
-                .sort()
-            )]
-          });
+          this._sendOverviewResponse(callback, data);
         }
       }
     );
+  }
+
+  _lastWeek() {
+    const d = new Date();
+    d.setDate(d.getDate()-7);
+    const lastWeek = '' +
+      d.getUTCFullYear() + '-' +
+      ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' +
+      ('0' + d.getUTCDate()).slice(-2);
+    return lastWeek;
+  }
+
+  _sendOverviewResponse(callback, data) {
+    const systemNames = [...new Set(
+      data.Items.map(item => { return item.system.S; })
+        .sort()
+    )];
+    callback({
+      systems: systemNames.map((systemName) => {
+        return this._systemOverview(data, systemName);
+      }, {})
+    });
+  }
+
+  _systemOverview(data, systemName) {
+    return {
+      systemName: systemName
+      //factions: this._factionsOverview(data, systemName)
+    };
   }
 };
 
