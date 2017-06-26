@@ -48,6 +48,16 @@ class AwsClient {
     return lastWeek;
   }
 
+  _subtractDays(currentDate, noOfDays) {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate()-noOfDays);
+    const subtractedDate = '' +
+      d.getUTCFullYear() + '-' +
+      ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' +
+      ('0' + d.getUTCDate()).slice(-2);
+    return subtractedDate;
+  }
+
   _sendOverviewResponse(callback, data) {
     const systemNames = [...new Set(
       data.Items.map(item => { return item.system.S; })
@@ -58,9 +68,11 @@ class AwsClient {
         .sort().reverse()
     )];
     const systemsOverview = systemNames.map(systemName => {
-      const systemData = data.Items.filter(item => {
-        return systemName === item.system.S;
-      });
+      const systemData = data.Items
+        .filter(item => {return systemName === item.system.S;})
+        .sort((a, b) => {
+          return new Date(b.date.S) - new Date(a.date.S)
+        });
       return this._systemOverview(systemData, systemName, dates);
     }, {});
     callback({
@@ -76,7 +88,10 @@ class AwsClient {
       .map(item => { return item.faction.S });
     return {
       systemName: systemName,
+      systemClassName: `overview-system overview-system-${this._htmlClassName(systemName)}`,
       date: dates[0],
+      collector: this._awsString(systemData[0].commander),
+      collectionMethod: this._awsString(systemData[0].updateType),
       factions: factionNames.map(factionName => {
         return this._factionOverview(systemData, factionName, dates);
       })
@@ -105,6 +120,45 @@ class AwsClient {
   }
 
   _influenceDiffs(factionData) {
+    const diffs = this._allInfluenceDiffs(factionData);
+
+    const oneDay = this._findInfluenceDiff(diffs, 1);
+    const twoDays = this._findInfluenceDiff(diffs, 2);
+    const week = this._findInfluenceDiff(diffs, 7);
+
+    return {
+      oneDay: this._formatDiff(oneDay),
+      twoDays: this._formatDiff(twoDays),
+      week: this._formatDiff(week)
+    }
+  }
+
+  _formatDiff(diffValue) {
+    if (diffValue) {
+      if (diffValue > 0) {
+        return `+${diffValue}%`;
+      } else if (parseFloat(diffValue) === 0.0) {
+        return ''
+      } else {
+        return `${diffValue}%`;
+      }
+
+    } else {
+      return "Unknown"
+    }
+  }
+
+  _findInfluenceDiff(diffs, noOfDays) {
+    const diff = diffs.find(item => {
+      return item.daysDiff === noOfDays;
+    });
+
+    if (diff) {
+      return diff.influenceDiff;
+    }
+  }
+
+  _allInfluenceDiffs(factionData) {
     const currentDate=this._awsString(factionData[0].date);
     const currentInfluence=parseFloat(this._awsNumber(factionData[0].influence));
     return factionData.slice(1).map(item => {
@@ -151,6 +205,17 @@ class AwsClient {
 
   _awsNumber(value) {
     return value ? value.N : null;
+  }
+
+  _htmlClassName(value) {
+    let className = "";
+    if (value) {
+      className = value
+        .replace(/ /g,'-')
+        .replace(/[^-\w]+/,'')
+        .toLowerCase()
+    }
+    return className;
   }
 };
 
