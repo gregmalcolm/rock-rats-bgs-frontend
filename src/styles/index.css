@@ -1,9 +1,15 @@
 body {
   margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+  padding: 20px;
+  font-family: eurocaps;
+  background-color: rgba(255,224,0,0.06)
 }
 
 table, th, td {
   border: 1px solid black;
+}
+
+@font-face {
+    font-family: eurocaps;
+    src: url(../fonts/EUROCAPS.TTF);
 }

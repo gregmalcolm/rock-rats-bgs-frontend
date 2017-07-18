@@ -166,7 +166,7 @@ class AwsClient {
       const influence = parseFloat(this._awsNumber(item.influence));
       const daysDiff =
         (new Date(currentDate) - new Date(date)) / (1000*60*60*24);
-      const influenceDiff = (influence - currentInfluence).toFixed(2);
+      const influenceDiff = (currentInfluence - influence).toFixed(2);
       return {
         date: date,
         daysDiff: daysDiff,

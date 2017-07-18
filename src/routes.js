@@ -1,15 +1,14 @@
 import React from 'react'
 import {
-  BrowserRouter as Router,
-  Route
+  BrowserRouter
 } from 'react-router-dom'
 
-import BgsOverview from './pages/BgsOverview';
+import App from './components/App';
 
 const Routes = (props) => (
-  <Router {...props}>
-    <Route exact path="/" component={BgsOverview}/>
-  </Router>
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
 );
 
 export default Routes;

@@ -4,7 +4,7 @@ import OverviewContainer from '../containers/OverviewContainer';
 const BgsOverview = () => {
   return (
     <div>
-      <h1>Rock Rat BGS Tracker</h1>
+      <h2>Current BGS Overview</h2>
       <OverviewContainer />
     </div>
   );
