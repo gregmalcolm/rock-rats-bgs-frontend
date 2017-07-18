@@ -5,8 +5,18 @@ body {
   background-color: rgba(255,224,0,0.06)
 }
 
-table, th, td {
-  border: 1px solid black;
+/*table, th, td {*/
+/*}*/
+th {
+  background-color: orange;
+}
+
+tbody tr:nth-child(even) {
+  background-color: lightgrey
+}
+
+tbody tr:nth-child(odd) {
+  background-color: darkgrey
 }
 
 @font-face {

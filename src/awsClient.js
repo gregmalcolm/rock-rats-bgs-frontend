@@ -144,7 +144,7 @@ class AwsClient {
       }
 
     } else {
-      return "Unknown"
+      return "No Data"
     }
   }
 
