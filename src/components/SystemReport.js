@@ -8,15 +8,17 @@ const SystemReport = ({factions}) => {
         <tr>
           <th rowSpan="2"></th>
           <th colSpan="2">State</th>
-          <th colSpan="4">Influence</th>
+          <th colSpan="6">Influence</th>
         </tr>
         <tr>
           <th>Current</th>
           <th>Days in State</th>
           <th>Current</th>
-          <th>1 Day Diff</th>
-          <th>2 Day Diff</th>
-          <th>7 Day Diff</th>
+          <th>-1 Days</th>
+          <th>-2 Days</th>
+          <th>-3 Days</th>
+          <th>-4 Days</th>
+          <th>-7 Days</th>
         </tr>
       </thead>
       <tbody>

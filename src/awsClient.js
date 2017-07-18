@@ -124,11 +124,15 @@ class AwsClient {
 
     const oneDay = this._findInfluenceDiff(diffs, 1);
     const twoDays = this._findInfluenceDiff(diffs, 2);
+    const threeDays = this._findInfluenceDiff(diffs, 3);
+    const fourDays = this._findInfluenceDiff(diffs, 4);
     const week = this._findInfluenceDiff(diffs, 7);
 
     return {
       oneDay: this._formatDiff(oneDay),
       twoDays: this._formatDiff(twoDays),
+      threeDays: this._formatDiff(threeDays),
+      fourDays: this._formatDiff(fourDays),
       week: this._formatDiff(week)
     }
   }
