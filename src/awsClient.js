@@ -28,11 +28,14 @@ class AwsClient {
         ExpressionAttributeValues: {":lastweek": {S: this._lastWeek()}},
         Limit: 5000
       },
-      (err, data) => {
+      (err, factionData) => {
         if (err) {
           console.error(err);
         } else {
-          this._sendOverviewResponse(callback, data);
+
+          this.db().scan({ TableName: 'rock-rat-systems' }, (err, systemData) => {
+            this._sendOverviewResponse(callback, systemData, factionData);
+          });
         }
       }
     );
@@ -58,22 +61,23 @@ class AwsClient {
     return subtractedDate;
   }
 
-  _sendOverviewResponse(callback, data) {
-    const systemNames = [...new Set(
-      data.Items.map(item => { return item.system.S; })
-        .sort()
-    )];
+  _sendOverviewResponse(callback, systemData, factionData) {
+    const systemNames = systemData.Items
+      .sort((a, b) => {
+        return new Date(a.datetime.S) - new Date(b.datetime.S)
+      })
+      .map(item => { return item.system.S; })
     const dates = [...new Set(
-      data.Items.map(item => { return item.date.S; })
+      factionData.Items.map(item => { return item.date.S; })
         .sort().reverse()
     )];
     const systemsOverview = systemNames.map(systemName => {
-      const systemData = data.Items
+      const systemFactionData = factionData.Items
         .filter(item => {return systemName === item.system.S;})
         .sort((a, b) => {
           return new Date(b.date.S) - new Date(a.date.S)
         });
-      return this._systemOverview(systemData, systemName, dates);
+      return this._systemOverview(systemFactionData, systemName, dates);
     }, {});
     callback({
       systems: systemsOverview,
