@@ -26,7 +26,7 @@ class AwsClient {
         FilterExpression: '#entrydate >= :lastweek',
         ExpressionAttributeNames: {"#entrydate": "date"},
         ExpressionAttributeValues: {":lastweek": {S: this._lastWeek()}},
-        Limit: 2000
+        Limit: 5000
       },
       (err, data) => {
         if (err) {
