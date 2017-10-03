@@ -94,8 +94,8 @@ class AwsClient {
       systemName: systemName,
       systemClassName: `overview-system overview-system-${this._htmlClassName(systemName)}`,
       date: dates[0],
-      collector: this._awsString(systemData[0].commander),
-      collectionMethod: this._awsString(systemData[0].updateType),
+      collector: systemData.length && this._awsString(systemData[0].commander),
+      collectionMethod: systemData.length && this._awsString(systemData[0].updateType),
       factions: factionNames.map(factionName => {
         return this._factionOverview(systemData, factionName, dates);
       })
