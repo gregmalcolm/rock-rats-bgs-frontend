@@ -22,7 +22,6 @@ class AwsClient {
   getOverview(callback) {
     this.db().scan({
         TableName: 'rock-rat-factions',
-        IndexName: 'date-index',
         FilterExpression: '#entrydate >= :lastweek',
         ExpressionAttributeNames: {"#entrydate": "date"},
         ExpressionAttributeValues: {":lastweek": {S: this._lastWeek()}},
