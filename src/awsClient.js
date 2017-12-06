@@ -44,14 +44,15 @@ class AwsClient {
         console.error(err);
         cb(err);
       } else {
-        if (daysAgo > 0) {
-          this._fetchFactionData({
+        const combinedData = {
             Items: [...factionData.Items, ...data.Items],
             Count: factionData.Count + data.Count,
             ScannedCount: factionData.ScannedCount + data.ScannedCount,
-          }, daysAgo - 1, cb);
+        };
+        if (daysAgo > 0) {
+          this._fetchFactionData(combinedData, daysAgo - 1, cb);
         } else {
-          cb(null, factionData);
+          cb(null, combinedData);
         }
       }
     });
